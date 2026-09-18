@@ -1,0 +1,9 @@
+version: "3"
+services:
+  alpha:
+    image: alpine
+    container_name: alpha
+    ports:
+      - "19001:80"
+    volumes:
+      - /srv/alpha:/data

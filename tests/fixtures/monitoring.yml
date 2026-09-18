@@ -1,0 +1,17 @@
+version: "2.4"
+services:
+  node-exporter:
+    image: prom/node-exporter
+    network_mode: host
+    expose:
+      - 9100
+    volumes:
+      - /proc:/host/proc:ro
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+volumes:
+  grafana-data: {}

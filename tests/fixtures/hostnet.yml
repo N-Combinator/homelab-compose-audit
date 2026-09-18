@@ -1,0 +1,8 @@
+version: "3.8"
+services:
+  pihole-host:
+    image: pihole/pihole
+    network_mode: host
+    ports:
+      - "5353:53/udp"
+      - "8053:8053"
