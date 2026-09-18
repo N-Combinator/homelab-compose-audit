@@ -223,7 +223,7 @@ Deliberately **not** in v0.1: reading docker-daemon state, `.env` / `${VAR}` int
 ```bash
 python -m venv .venv && . .venv/bin/activate
 pip install -e ".[dev]"
-pytest          # 117 tests, all offline
+pytest          # 132 tests, all offline
 ruff check .
 python -m build # wheel + sdist
 ```

@@ -110,12 +110,20 @@ def _expand_range(spec: str) -> list[int] | None:
             return None
         if start > end or end - start > 10_000:
             return None
+        if not _valid_port(start) or not _valid_port(end):
+            return None
         return list(range(start, end + 1))
     try:
-        return [int(spec)]
+        port = int(spec)
     except ValueError:
         # Unresolved ${VAR} or other non-numeric text — out of scope, skip it.
         return None
+    return [port] if _valid_port(port) else None
+
+
+def _valid_port(port: int) -> bool:
+    """Port 0 means "pick one for me", so it never claims a fixed host port."""
+    return 1 <= port <= 65535
 
 
 def _parse_short_port(spec: str) -> list[PortBinding]:
@@ -174,8 +182,6 @@ def _parse_long_port(entry: dict) -> list[PortBinding]:
     published = entry.get("published")
     if published is None:
         # ``target`` without ``published`` publishes on an ephemeral host port.
-        return []
-    if entry.get("mode") == "host" and published is None:
         return []
 
     protocol = str(entry.get("protocol") or "tcp").strip().lower()

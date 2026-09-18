@@ -250,3 +250,44 @@ def test_external_network_without_name_uses_its_key():
 
 def test_non_external_network_is_ignored():
     assert parse_external_networks({"networks": {"internal": {"driver": "bridge"}}}) == []
+
+
+# --- malformed and out-of-range input must not produce phantom claims ------
+
+
+@pytest.mark.parametrize(
+    "spec", ["0:80", "70000:80", "-1:80", "1-70000:80", "8080-8000:80"]
+)
+def test_out_of_range_or_reversed_ports_claim_nothing(spec):
+    assert parse_ports([spec]) == []
+
+
+def test_published_zero_claims_no_host_port():
+    """`published: 0` asks docker to pick a port, so nothing fixed is claimed."""
+    assert parse_ports([{"target": 80, "published": 0}]) == []
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        [None],
+        [["8080:80"]],
+        [{}],
+        [{"target": 80, "published": None}],
+    ],
+)
+def test_unusable_port_entries_are_skipped_not_fatal(raw):
+    assert parse_ports(raw) == []
+
+
+@pytest.mark.parametrize("raw", [[None], [""], [":"]])
+def test_unusable_volume_entries_are_skipped_not_fatal(raw):
+    assert parse_volumes(raw) == []
+
+
+def test_networks_section_that_is_not_a_mapping_is_ignored():
+    assert parse_external_networks({"networks": ["proxy"]}) == []
+
+
+def test_network_entry_that_is_not_a_mapping_is_ignored():
+    assert parse_external_networks({"networks": {"proxy": ["x"]}}) == []
