@@ -156,8 +156,11 @@ def _paths_overlap(left: str, right: str) -> bool:
     # Relative and absolute paths are not comparable without a working directory.
     if os.path.isabs(left) != os.path.isabs(right):
         return False
-    left_parts = left.split(os.sep)
-    right_parts = right.split(os.sep)
+    # Empty segments are dropped so that the host root '/' (which splits to
+    # ['', '']) and trailing slashes do not defeat the prefix comparison: '/'
+    # is a prefix of every absolute path and must overlap all of them.
+    left_parts = [part for part in left.split(os.sep) if part]
+    right_parts = [part for part in right.split(os.sep) if part]
     if len(left_parts) <= len(right_parts):
         shorter, longer = left_parts, right_parts
     else:

@@ -208,6 +208,35 @@ def test_nested_bind_mount_paths_overlap():
     assert "overlap" in conflicts[0].detail
 
 
+def test_host_root_bind_mount_overlaps_every_other_path():
+    """A stack mounting '/' contains every other host bind mount — the worst case."""
+    stacks = [
+        stack("a", [service("web", binds=[BindMount("/", "/host")])]),
+        stack("b", [service("api", binds=[BindMount("/srv/media", "/media")])]),
+    ]
+    conflicts = check_bind_mounts(stacks)
+    assert len(conflicts) == 1
+    assert conflicts[0].kind == KIND_BIND_MOUNT
+    assert "overlap" in conflicts[0].detail
+
+
+def test_host_root_overlaps_regardless_of_argument_order():
+    """The root mount is found whether it is the first or the second stack."""
+    stacks = [
+        stack("a", [service("web", binds=[BindMount("/srv/media", "/media")])]),
+        stack("b", [service("api", binds=[BindMount("/", "/host")])]),
+    ]
+    assert len(check_bind_mounts(stacks)) == 1
+
+
+def test_trailing_slash_does_not_hide_a_nested_mount():
+    stacks = [
+        stack("a", [service("web", binds=[BindMount("/srv/media/", "/media")])]),
+        stack("b", [service("api", binds=[BindMount("/srv/media/movies", "/movies")])]),
+    ]
+    assert len(check_bind_mounts(stacks)) == 1
+
+
 def test_sibling_paths_with_a_shared_prefix_do_not_overlap():
     """/srv/media-backup is not inside /srv/media despite the string prefix."""
     stacks = [
