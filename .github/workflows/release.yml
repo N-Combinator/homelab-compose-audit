@@ -1,0 +1,39 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build tooling
+        run: python -m pip install --upgrade pip build
+
+      - name: Build wheel and sdist
+        run: python -m build
+
+      - name: Verify both artifacts were produced
+        run: |
+          ls -l dist/
+          test -n "$(find dist -maxdepth 1 -name '*.whl' -print -quit)" || {
+            echo "ERROR: no wheel produced" >&2; exit 1; }
+          test -n "$(find dist -maxdepth 1 -name '*.tar.gz' -print -quit)" || {
+            echo "ERROR: no sdist produced" >&2; exit 1; }
+
+      - name: Attach wheel and sdist to the GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*.whl
+            dist/*.tar.gz
+          generate_release_notes: true
