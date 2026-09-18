@@ -1,0 +1,11 @@
+web:
+  image: nginx
+  container_name: legacy-web
+  ports:
+    - "8081:80"
+  volumes:
+    - /srv/www:/usr/share/nginx/html
+redis:
+  image: redis
+  ports:
+    - "6379"

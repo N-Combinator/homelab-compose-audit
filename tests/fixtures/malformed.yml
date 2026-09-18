@@ -1,0 +1,6 @@
+version: "3"
+services:
+  broken:
+    image: alpine
+    ports:
+   - "this: is: not: valid

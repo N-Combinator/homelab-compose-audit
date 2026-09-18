@@ -1,0 +1,9 @@
+version: "3"
+services:
+  beta:
+    image: alpine
+    container_name: beta
+    ports:
+      - "19002:80"
+    volumes:
+      - /srv/beta:/data

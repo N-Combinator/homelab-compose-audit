@@ -1,0 +1,21 @@
+version: "3.9"
+services:
+  dashboard:
+    image: homer:latest
+    container_name: jellyfin
+    ports:
+      - "127.0.0.1:8096:80"
+    volumes:
+      - /srv/media/movies:/data
+  caddy:
+    image: caddy:2
+    ports:
+      - target: 80
+        published: "8080"
+      - "443:443"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+networks:
+  proxy:
+    external:
+      name: edge-proxy

@@ -1,0 +1,26 @@
+version: "3.8"
+services:
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    container_name: jellyfin
+    ports:
+      - "8096:8096"
+      - "7359:7359/udp"
+    volumes:
+      - /srv/media:/media:ro
+      - ./jellyfin/config:/config
+    networks:
+      - proxy
+  transmission:
+    image: linuxserver/transmission
+    container_name: transmission
+    ports:
+      - target: 9091
+        published: 9091
+        protocol: tcp
+    volumes:
+      - /srv/downloads:/downloads
+networks:
+  proxy:
+    external: true
+    name: edge-proxy
